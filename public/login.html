@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cookie Factory</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+</head>
+
+<body id="root">
+    <div id="root">
+        <header>
+            <h2>Login page</h2>
+            <ul>
+                <li><a href="storage" name="storage">Storage</a></li>
+                <li><a href="recipes" name="recipes">Recipes</a></li>
+                <li><a href="login" name="login">Login/SignUp</a></li>
+            </ul> 
+        </header>
+        <main>
+
+                
+
+        </main>
+    </div>
+<script>
+
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "api/auth/getUser",
+            type:"GET",
+            success: function(data){
+                if(!data.user){
+                    
+                    $('main').html(loginForm())
+                    
+                    $('#formaAuth').submit(function(e){
+                        e.preventDefault()
+                        var name = $('#username').val();
+                        var password = $('#password').val();
+
+                        if($('[name=authType]:checked').val() === "login"){
+                            $.ajax({
+                                url: "api/auth/login",
+                                type: "POST",
+                                data: {name, password},
+                                success: function(data){
+                                    alert(JSON.stringify(data))
+                                    if(!data.error) location.reload()
+                                }
+                            })                            
+                        }else{
+                            var isAdmin = $('#typeUser').prop("checked");
+                            console.log("isAdmin",isAdmin);
+                            
+                            $.ajax({
+                                url: "api/auth/signup",
+                                type: "POST",
+                                data: {name, password, isAdmin},
+                                success: function(data){
+                                    alert(JSON.stringify(data))
+                                }
+                            })
+                        }
+                    })
+                }else{
+                    $('main').html(btnAccount())
+                    $('main').after(JSON.stringify(data.user))
+                    $('#btnLogout').click(function(){
+                        $.ajax({
+                                url: "api/auth/logout",
+                                type: "GET",
+                                success: function(data){
+                                    alert(JSON.stringify(data))
+                                    if(!data.error) location.reload()
+                                }
+                            })
+                    })
+                    $('#btnDeleteUser').click(function(){
+                        $.ajax({
+                                url: "api/auth/delete",
+                                type: "DELETE",
+                                success: function(data){
+                                    alert(JSON.stringify(data))
+                                    if(!data.error) location.reload()
+                                }
+                            })
+                    })
+                }
+            }
+        }); 
+    });
+
+
+
+    var btnAccount = function(){
+        return `
+            <button id="btnLogout">LogOut</button>
+            <button id="btnDeleteUser">Delete User</button>
+        `
+    }
+    var loginForm = function(){        
+        return `            
+            <form id="formaAuth">                    
+                <label for="typeLogin">
+                    <input type="radio" name="authType" id="typeLogin" value="login" onchange="changeAuth(this)" checked >login
+                </label>
+                <label for="typeSignup">
+                    <input type="radio" name="authType" id="typeSignup" value="signup" onchange="changeAuth(this)">signup
+                </label> <br/>
+                
+                <input type="text"  id="username" class="username" placeholder="User name" required>
+                <label for="typeUser" hidden id="labelTypeUser">
+                    <input type="checkbox" id="typeUser" value="admin" checked="false" >Admin
+                </label> <br/>
+                <input type="password" id="password" class="password" placeholder="User password" required><br/>
+                <button type="submit" id="btnSendAuth">LogIn</button><br/>
+            </form>        
+        `
+    }
+
+    function changeAuth(e){
+        
+        if(e.value === "signup"){
+            $('#btnSendAuth').text('SignUp')
+            $('#labelTypeUser').show()
+            
+        } 
+        else{
+            $('#btnSendAuth').text('LogIn')             
+            $('#labelTypeUser').hide()
+        }  
+    }    
+
+</script>
+
+</body>
+
+</html>

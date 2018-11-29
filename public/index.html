@@ -1,28 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Misha Site</title>
+    <title>Cookie Factory</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
 </head>
 
-<body>
+<body id="root">
     <div id="root">
-        <h3>Hello, World!</h3>
+        <header>
+            <h2>Home page</h2>
+        </header>
+        <main>
+                <ul>
+                    <li><a href="storage" name="storage">Storage</a></li>
+                    <li><a href="recipes" name="recipes">Recipes</a></li>
+                    <li><a href="login" name="login">Login/SignUp</a></li>
+                </ul>             
+        </main>
     </div>
-
 <script>
     $(document).ready(function () {
-        $('#root').css({
-            backgroundColor: "#ddd", 
-            border:"solid 2px #000000"
-        })
+
     });
+
+
+    function handleClick(e){
+        // var type = e.name;
+        // switch (type) {
+        //     case "storage":{
+        //         $.ajax({
+        //             url: "api/storage",
+        //             type:"GET",
+        //             success: function(data){
+        //                 alert( "Прибыли данные от storage: " + JSON.stringify(data) );
+        //             }
+        //         });                           
+        //         break;
+        //     }
+        //     case "recipes" :{
+        //         $.ajax({
+        //             url: "api/recipes",
+        //             type:"GET",
+        //             success: function(data){
+        //                 alert( "Прибыли данные от recipes: " + JSON.stringify(data) );
+        //             }
+        //         });                           
+        //         break;
+        //     }
+        //     case "login" :{
+        //         $.ajax({
+        //             url: "api/auth",
+        //             type:"GET",
+        //             success: function(data){
+        //                 alert( "Прибыли данные от auth: " + JSON.stringify(data) );
+        //             }
+        //         });                           
+        //         break;
+        //     }
+                
+        
+        //     default:
+        //         alert("Неизвестный запрос")
+        //         break;
+        // }      
+    }
+
 </script>
 
 </body>

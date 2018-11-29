@@ -1,79 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cookie Factory</title>
+    <title>Cookie Factory | Recipes</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
 </head>
 
-<body id="root">
+<body>
     <div id="root">
         <header>
             <h2>Recipes page</h2>
         </header>
-        <main>               
-            <ul>
-                <li><a href="storage" name="storage">Storage</a></li>
-                <li><a href="recipes" name="recipes">Recipes</a></li>
-                <li><a href="login" name="login">Login/SignUp</a></li>
-            </ul> 
-            
+        <ul>
+            <li><a href="storage" name="storage">Storage</a></li>
+            <li><a href="recipes" name="recipes">Recipes</a></li>
+            <li><a href="login" name="login">Login/SignUp</a></li>
+        </ul>
 
+        <button id="btnNavGetAll">Get All</button>
+        <button id="btnNavAddNew">Add New</button>
+        
+        <main>
             
         </main>
     </div>
-<script>
-    $(document).ready(function () {
+    <script>
 
-    });
+        var ITEMS = {}
 
+        $(document).ready(function () {
 
-    function handleClick(e){
-        var type = e.name;
-        switch (type) {
-            case "storage":{
-                $.ajax({
-                    url: "api/storage",
-                    type:"GET",
-                    success: function(data){
-                        alert( "Прибыли данные от storage: " + JSON.stringify(data) );
-                    }
-                });                           
-                break;
-            }
-            case "recipes" :{
-                $.ajax({
-                    url: "api/recipes",
-                    type:"GET",
-                    success: function(data){
-                        alert( "Прибыли данные от recipes: " + JSON.stringify(data) );
-                    }
-                });                           
-                break;
-            }
-            case "login" :{
-                $.ajax({
-                    url: "api/auth",
-                    type:"GET",
-                    success: function(data){
-                        alert( "Прибыли данные от auth: " + JSON.stringify(data) );
-                    }
-                });                           
-                break;
-            }
-                
+            $.ajax({
+                url: "api/auth/getUser",
+                type: "GET",
+                success: function (data) {
+                    $('main').before('<h3>Welcome, ' + data.user.name + '!</h3>')
+                    getAll()
+                    
+                    $('#btnNavGetAll').click(function(e){
+                        getAll()
+                    });
+                    $('#btnNavAddNew').click(function(){
+                        $('main').html(viewAddItemForm())
+                        $('#formAddItem').submit(function(e){
+                            var name = $('#itemname').val()
+                            var count = $('#itemcount').val()
+                            addItem(name,count)
+                            e.preventDefault()
+                        })
+                    })
+                    
+                    
+                }
+            });
+        });
         
-            default:
-                alert("Неизвестный запрос")
-                break;
-        }      
-    }
+        var viewItemsList = function(items){
+            return (`<div class="items-list">`+$.map(items, function(item, id){
+                    ITEMS[id] = item
+                    return viewItem(item, id)
+                })+`</div>`)
+        }
+        var viewItem = function(item, id){
+            return (`<div class="item">                
+                <h5>`+(id+1)+`) `+item.name+` - `+item.count+`</h5>
+                <button  class="btnDelete"  onclick="deleteItem(`+id+`)">X</button>
+                <button  class="btnEdit" onclick="clickEditBtn(`+id+`)">EDIT</button>
+                <br/>
+            </div>`)
+        }
+        
+        var viewAddItemForm = function(){    
+            return `            
+                <form id="formAddItem">
+                    <h4>Adding new item to storage</h4>                    
+                    <input type="text"  id="itemname" class="itemname" placeholder="Item name" required>
+                    <input type="number" id="itemcount" class="itemcount" placeholder="Item count" required min="1"><br/>
+                    <button type="submit">Add</button><br/>
+                </form>        
+            `
+        }
+        var clickEditBtn = function(id){
+            var item = ITEMS[id]
+            $('main').html(viewEditItemForm(item))
+            $('#formEditItem').submit(function(e){
+                var name = $('#itemname').val()
+                var count = $('#itemcount').val()
+                editItem(item._id,name,count)
+                e.preventDefault()
+            })
+            
 
-</script>
+        }
+        var viewEditItemForm = function(item){  
+            return `            
+                <form id="formEditItem" name="`+item._id+`">
+                    <h4>Adding new item to storage</h4>                    
+                    <input type="text"  id="itemname" class="itemname" placeholder="Item name" required value="`+item.name+`">
+                    <input type="number" id="itemcount" class="itemcount" placeholder="Item count" required min="1"  value="`+item.count+`"><br/>
+                    <button type="submit">Edit</button><br/>
+                </form>        
+            `
+        }
+
+        function addItem(name,count){
+            $.ajax({
+                url: "api/storage/item",
+                type: "POST",
+                data: {name,count},
+                success: function (data) {
+                    alert(JSON.stringify(data))
+                    getAll()
+                }
+            });
+
+        }
+        function getAll(){
+            $.ajax({
+                url: "api/storage",
+                type: "GET",
+                success: function (data) {
+                    $('main').html(viewItemsList(data.items))
+
+                }
+            });
+        }
+        
+        function deleteItem(id){
+            
+            $.ajax({
+                url: "api/storage/item",
+                type: "DELETE",
+                data:{id:ITEMS[id]._id},
+                success: function (data) {
+                    alert(JSON.stringify(data))
+                    getAll()
+                }
+            });
+        }
+        function editItem(id,name,count){
+            
+            $.ajax({
+                url: "api/storage/item",
+                type: "PUT",
+                data:{id,name,count},
+                success: function (data) {
+                    alert(JSON.stringify(data))
+                    getAll()
+                }
+            });
+        }
+
+    </script>
 
 </body>
 

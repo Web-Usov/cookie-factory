@@ -1,5 +1,6 @@
 const User = require('./models/user')
 const Item = require('./models/item')
+const Recipe = require('./models/recipe')
 
 
 
@@ -40,9 +41,9 @@ module.exports = (app) => {
     app.put('/api/storage/item', (req,res) => {      
         if(!req.session.user) return  res.redirect('/')      
         const {id,name,count} = req.body
-        Item.findByIdAndUpdate(id,{$set:{name,count}},(error, res) => {
+        Item.findByIdAndUpdate(id,{$set:{name,count}},{new:true},(error, item) => {
             if(error) return res.json({error:error.message})            
-            res.json({error:null, message:res})
+            res.json({error:null, message:item})
         })
     })
 
@@ -63,10 +64,63 @@ module.exports = (app) => {
     })
 
     
-    app.get('/api/recipes', (req,res) => {
-        // console.log(req.body);
-        res.json(recipes)
+    
+    app.get('/api/recipes', (req,res) => {      //TODO
+        if(!req.session.user) return  res.redirect('/')      
+        Recipe.find({}, (error, recipe) => {
+            if(error) return res.json({error:error.message})
+            
+            res.json({error:null, recipe})
+
+        })
     })
+    app.get('/api/recipes/item', (req,res) => {      
+        if(!req.session.user) return  res.redirect('/')      
+        const {id} = req.body
+        Recipe.findById(id, (error, recipe) => {
+            if(error) return res.json({error:error.message})
+            if(!recipe) return res.json({error:'Recipe not found'})
+            
+            res.json({error:null, recipe})
+
+        })
+    })
+    
+    app.post('/api/recipes/item', (req,res) => {      
+        console.log(req.body);
+        
+        if(!req.session.user) return  res.redirect('/')      
+        const {name,ingreds} = req.body
+        Recipe.create({name,ingreds}, (error, recipe) => {//TODO
+            if(error) return res.json({error:error.message})            
+            res.json({error:null, recipe})
+        })
+    })
+
+    app.put('/api/recipes/item', (req,res) => {    //TODO  
+        if(!req.session.user) return  res.redirect('/')      
+        const {id,name,count} = req.body
+        Recipe.findByIdAndUpdate(id,{$set:{name,count}},{new:true},(error, recipe) => {
+            if(error) return res.json({error:error.message})            
+            res.json({error:null, message:recipe})
+        })
+    })
+
+    app.delete('/api/recipes/item', (req,res) => {      //TODO
+        if(!req.session.user) return  res.redirect('/')      
+        const {id} = req.body
+        console.log(id);
+        
+        Recipe.findByIdAndDelete(id, (error, recipe) => {
+            
+            if(error) return res.json({error:error.message})
+            res.json({
+                error:null,
+                message:recipe
+            })
+        })
+    })
+
     
 
 

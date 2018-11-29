@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cookie Factory</title>
+    <title>Cookie Factory | Storage</title>
     <link rel="stylesheet" href="main.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
 </head>
 
-<body id="root">
+<body>
     <div id="root">
         <header>
             <h2>Storage page</h2>
@@ -61,24 +61,18 @@
         });
         
         var viewItemsList = function(items){
-            return `
-                <div class="items-list">
-                `+$.map(items, function(item, id){
-                    ITEMS[id] = item._id
-                    return viewItem(item, id+1)
-                })+`    
-                </div>
-            `
+            return (`<div class="items-list">`+$.map(items, function(item, id){
+                    ITEMS[id] = item
+                    return viewItem(item, id)
+                })+`</div>`)
         }
         var viewItem = function(item, id){
-            console.log(ITEMS[id])            
-            return `<div class="item">
-                
-                <h5>`+id+`) `+item.name+` - `+item.count+`</h5>
+            return (`<div class="item">                
+                <h5>`+(id+1)+`) `+item.name+` - `+item.count+`</h5>
                 <button  class="btnDelete"  onclick="deleteItem(`+id+`)">X</button>
-                <button  class="btnEdit" onclick="editItem(`+id+`)">EDIT</button>
+                <button  class="btnEdit" onclick="clickEditBtn(`+id+`)">EDIT</button>
                 <br/>
-            </div>`
+            </div>`)
         }
         
         var viewAddItemForm = function(){    
@@ -87,7 +81,29 @@
                     <h4>Adding new item to storage</h4>                    
                     <input type="text"  id="itemname" class="itemname" placeholder="Item name" required>
                     <input type="number" id="itemcount" class="itemcount" placeholder="Item count" required min="1"><br/>
-                    <button type="submit" id="btnAddItem">Add</button><br/>
+                    <button type="submit">Add</button><br/>
+                </form>        
+            `
+        }
+        var clickEditBtn = function(id){
+            var item = ITEMS[id]
+            $('main').html(viewEditItemForm(item))
+            $('#formEditItem').submit(function(e){
+                var name = $('#itemname').val()
+                var count = $('#itemcount').val()
+                editItem(item._id,name,count)
+                e.preventDefault()
+            })
+            
+
+        }
+        var viewEditItemForm = function(item){  
+            return `            
+                <form id="formEditItem" name="`+item._id+`">
+                    <h4>Adding new item to storage</h4>                    
+                    <input type="text"  id="itemname" class="itemname" placeholder="Item name" required value="`+item.name+`">
+                    <input type="number" id="itemcount" class="itemcount" placeholder="Item count" required min="1"  value="`+item.count+`"><br/>
+                    <button type="submit">Edit</button><br/>
                 </form>        
             `
         }
@@ -99,6 +115,7 @@
                 data: {name,count},
                 success: function (data) {
                     alert(JSON.stringify(data))
+                    getAll()
                 }
             });
 
@@ -119,9 +136,22 @@
             $.ajax({
                 url: "api/storage/item",
                 type: "DELETE",
-                data:{id:ITEMS[id]},
+                data:{id:ITEMS[id]._id},
                 success: function (data) {
                     alert(JSON.stringify(data))
+                    getAll()
+                }
+            });
+        }
+        function editItem(id,name,count){
+            
+            $.ajax({
+                url: "api/storage/item",
+                type: "PUT",
+                data:{id,name,count},
+                success: function (data) {
+                    alert(JSON.stringify(data))
+                    getAll()
                 }
             });
         }

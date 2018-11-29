@@ -1,13 +1,13 @@
 {
   "name": "mishasite",
-  "version": "0.0.1-dev",
+  "version": "0.0.2-beta",
   "description": "",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
-  "author": "LehaAndMayBeMisha",
+  "author": "Misha",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
